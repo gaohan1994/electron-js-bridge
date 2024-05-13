@@ -14,6 +14,8 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { IframeManager } from './jsb-sdk';
+import IpcWebviewManager from './jsb-sdk/ipcWebviewManager';
 
 class AppUpdater {
   constructor() {
@@ -75,6 +77,8 @@ const createWindow = async () => {
     height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      webviewTag: true,
+      nodeIntegration: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -110,6 +114,12 @@ const createWindow = async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
+
+  const iframeManager = new IframeManager();
+  iframeManager.start();
+
+  // eslint-disable-next-line
+  new IpcWebviewManager(mainWindow);
 };
 
 /**
